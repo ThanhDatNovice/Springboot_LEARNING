@@ -10,5 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentResponse {
+	private Long id;
 	private String name;
+	private Integer age;
 }
