@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.StudentRequest;
@@ -39,19 +41,23 @@ public class StudentService {
 	//READ
 	
 	// + get all
-	public List<StudentResponse> getAllStudent(){
+	public Page<StudentResponse> getAllStudent(int page, int size, String sort, String direction){
 		
-		List<Student> students =  studentRepository.findAll();
+		Sort.Direction sortDirection = direction.equalsIgnoreCase("desc")?Sort.Direction.DESC:Sort.Direction.ASC;
+		
+		Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+		
+		Page<Student> students =  studentRepository.findAll(pageable);
 
-		return students.stream()
-				.map(student -> {
+		return students	.map(student -> {
 					StudentResponse response = new StudentResponse();
 					
 					response.setName(student.getName());
+					response.setId(student.getId());
+					response.setAge(student.getAge());
 					
 					return response;
-				})				
-				.toList();
+				});
 	}
 	
 	// + get one
@@ -79,7 +85,7 @@ public class StudentService {
 		studentRepository.save(existing);
 		
 		
-		 return new StudentResponse(existing.getName());
+		 return new StudentResponse(existing.getId(), existing.getName(), existing.getAge());
 	}
 	
 	public void deleteStudent(Long idToDel) {
