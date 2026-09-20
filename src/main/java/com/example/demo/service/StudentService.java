@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,13 +43,13 @@ public class StudentService {
 	//READ
 	
 	// + get all
-	public Page<StudentResponse> getAllStudent(int page, int size, String sort, String direction){
+	public Page<StudentResponse> getAllStudent(String name, Integer minAge, Integer maxAge, int page, int size, String sort, String direction){
 		
 		Sort.Direction sortDirection = direction.equalsIgnoreCase("desc")?Sort.Direction.DESC:Sort.Direction.ASC;
 		
 		Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 		
-		Page<Student> students =  studentRepository.findAll(pageable);
+		Page<Student> students =  studentRepository.filterStudents(name, minAge, maxAge, pageable);
 
 		return students	.map(student -> {
 					StudentResponse response = new StudentResponse();
@@ -60,7 +62,7 @@ public class StudentService {
 				});
 	}
 	
-	// + get one
+	// + get by id
 	public StudentResponse getIdStudent(Long id) {
 		Student student = studentRepository.findById(id)
 				.orElseThrow(
@@ -71,6 +73,24 @@ public class StudentService {
 		response.setName(student.getName());
 		return response;		
 	}
+	
+	//get by age
+	public List<StudentResponse> findByAge(Integer age, String name){
+		List<Student> students= studentRepository.findByAge(age, name);
+
+		return students.stream()
+				.map(student -> new StudentResponse(student.getId(),student.getName(), student.getAge()))
+				.toList();
+	}
+	
+	//get all by ORDER BY age
+	public List<StudentResponse> findAllOrderby(){
+		List<Student> students = studentRepository.findAllOrderby();
+		return students.stream()
+				.map(student -> new StudentResponse(student.getId(), student.getName(), student.getAge()))
+				.toList();
+	}
+	
 	
 	//UPDATE
 	public StudentResponse updateStudent(Long idToFind, StudentRequest student) {
