@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import java.util.List;
+//import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.StudentRequest;
-import com.example.demo.dto.StudentResponse;
+import com.example.demo.dto.student.StudentRequest;
+import com.example.demo.dto.student.StudentResponse;
 import com.example.demo.service.StudentService;
 
 import jakarta.validation.Valid;
@@ -45,28 +45,30 @@ public class StudentController {
 	public Page<StudentResponse> getFilterStudents(
 			@RequestParam (required = false) String name, 
 			@RequestParam(required = false) Integer minAge, 
-			@RequestParam(required = false) Integer maxAge, 
+			@RequestParam(required = false) Integer maxAge,
+			@RequestParam(required = false) Long idClass,
+			@RequestParam(required = false) String nameClass,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size,
-			@RequestParam(defaultValue = "age") String Sort, 
+			@RequestParam(defaultValue = "id") String Sort, 
 			@RequestParam(defaultValue = "asc") String direction){
-		return studentService.getAllStudent(name, minAge, maxAge, page, size, Sort, direction);
+		return studentService.getAllStudent(name, minAge, maxAge, idClass, nameClass, page, size, Sort, direction);
 	}
 	
 	
-	@GetMapping("/{id}")
-	public StudentResponse getIdStudent(@PathVariable Long id) {
-		return studentService.getIdStudent(id);
-	}
-	
-	@GetMapping("/age")
-	public List<StudentResponse> getAgeStudent(@RequestParam Integer age, @RequestParam String name){
-		return studentService.findByAge(age, name);
-	}
-	@GetMapping("/orderby")
-	public List<StudentResponse> getOrderbyAgeStudent(){
-		return studentService.findAllOrderby();
-	}
+//	@GetMapping("/{id}")
+//	public StudentResponse getIdStudent(@PathVariable Long id) {
+//		return studentService.getIdStudent(id);
+//	}
+//	
+//	@GetMapping("/age")
+//	public List<StudentResponse> getAgeStudent(@RequestParam Integer age, @RequestParam String name){
+//		return studentService.findByAge(age, name);
+//	}
+//	@GetMapping("/orderby")
+//	public List<StudentResponse> getOrderbyAgeStudent(){
+//		return studentService.findAllOrderby();s
+//	}
 	
 		//Update
 	@PutMapping("/{id}")
