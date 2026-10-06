@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.student;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -18,4 +18,5 @@ public class StudentRequest {
 	@Max(value = 120, message = "Tuoi phai duoi 120")
 	private Integer age;
 	
+	private Long idClass;
 }

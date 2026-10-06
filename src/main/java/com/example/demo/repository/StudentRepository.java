@@ -29,8 +29,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 	List<Student> baiThucHanh(@Param("name") String name, @Param("age") Integer age);
 	
 	//New Version for get all (partern).
-	@Query("SELECT s FROM Student s WHERE (:name IS NULL OR s.name LIKE %:name%) AND (:minAge IS NULL OR s.age >= :minAge) AND (:maxAge IS NULL OR s.age <= :maxAge)")
-	Page<Student> filterStudents(@Param("name") String name, @Param("minAge") Integer minAge, @Param("maxAge") Integer maxAge, Pageable pagination);
+	@Query("SELECT s FROM Student s WHERE (:name IS NULL OR s.name LIKE %:name%) AND (:minAge IS NULL OR s.age >= :minAge) AND (:maxAge IS NULL OR s.age <= :maxAge) AND (:idClass IS NULL OR s.classEntity.id = :idClass) AND (:nameClass IS NULL OR s.classEntity.name LIKE %:nameClass%)")
+	Page<Student> filterStudents(@Param("name") String name, @Param("minAge") Integer minAge, @Param("maxAge") Integer maxAge, @Param("idClass") Long idClass, @Param("nameClass") String nameClass, Pageable pagination);
 	
 	
 	

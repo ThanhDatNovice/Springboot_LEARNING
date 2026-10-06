@@ -1,12 +1,14 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Id;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -21,7 +23,8 @@ public class Student {
 	
 	private Integer age;
 	
-	//method
-	
+	@ManyToOne
+	@JoinColumn(name = "class_id")
+	private ClassEntity classEntity;
 
 }
