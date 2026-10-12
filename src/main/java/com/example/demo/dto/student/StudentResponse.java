@@ -1,6 +1,7 @@
 package com.example.demo.dto.student;
 
 import com.example.demo.dto.classEntity.ClassEntityBasicResponse;
+import com.example.demo.dto.profile.ProfileBasicResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,4 +18,5 @@ public class StudentResponse {
 	private Integer age;
 	
 	private ClassEntityBasicResponse classEntity;
+	private ProfileBasicResponse profile;
 }

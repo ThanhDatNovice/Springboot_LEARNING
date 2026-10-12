@@ -1,5 +1,7 @@
 package com.example.demo.dto.student;
 
+import com.example.demo.dto.profile.ProfileRequest;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -19,4 +21,5 @@ public class StudentRequest {
 	private Integer age;
 	
 	private Long idClass;
+	private ProfileRequest profileRequest;
 }
