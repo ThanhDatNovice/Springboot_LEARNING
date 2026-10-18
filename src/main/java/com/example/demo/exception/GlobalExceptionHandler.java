@@ -27,6 +27,39 @@ public class GlobalExceptionHandler {
                 .body(er);
     }
     
+    @ExceptionHandler(ClassEntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleClassEntityNotFound(ClassEntityNotFoundException ex){
+    	ErrorResponse er = new ErrorResponse(
+    			HttpStatus.NOT_FOUND.value(),
+    			ex.getMessage(),
+    			LocalDateTime.now()
+    			);
+    	return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    							.body(er);
+    }
+    @ExceptionHandler(ProfileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleProfileNotFound(ProfileNotFoundException ex){
+    	ErrorResponse er = new ErrorResponse(
+    			HttpStatus.NOT_FOUND.value(),
+    			ex.getMessage(),
+    			LocalDateTime.now()
+    			);
+    	return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    							.body(er);
+    	
+    }
+    
+    @ExceptionHandler(CourseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotFound(CourseNotFoundException ex){
+    	ErrorResponse er = new ErrorResponse(
+    			HttpStatus.NOT_FOUND.value(),
+    			ex.getMessage(),
+    			LocalDateTime.now()
+    	);
+    	return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    							.body(er);
+    }
+    
     // bat loi validation request khong hop le
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation (MethodArgumentNotValidException ex){

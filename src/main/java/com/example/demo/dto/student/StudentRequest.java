@@ -1,5 +1,7 @@
 package com.example.demo.dto.student;
 
+import java.util.List;
+
 import com.example.demo.dto.profile.ProfileRequest;
 
 import jakarta.validation.constraints.Max;
@@ -22,4 +24,5 @@ public class StudentRequest {
 	
 	private Long idClass;
 	private ProfileRequest profileRequest;
+	private List<Long> idCourses;
 }
