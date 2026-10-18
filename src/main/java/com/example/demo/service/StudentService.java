@@ -10,15 +10,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.classEntity.ClassEntityBasicResponse;
+import com.example.demo.dto.course.CourseBasicResponse;
 import com.example.demo.dto.profile.ProfileBasicResponse;
 import com.example.demo.dto.student.StudentRequest;
 import com.example.demo.dto.student.StudentResponse;
 import com.example.demo.entity.ClassEntity;
+import com.example.demo.entity.Course;
 import com.example.demo.entity.Profile;
 import com.example.demo.entity.Student;
 import com.example.demo.exception.ClassEntityNotFoundException;
+import com.example.demo.exception.CourseNotFoundException;
 import com.example.demo.exception.StudentNotFoundException;
 import com.example.demo.repository.ClassEntityRepository;
+import com.example.demo.repository.CourseRepository;
 import com.example.demo.repository.ProfileRepository;
 import com.example.demo.repository.StudentRepository;
 
@@ -30,6 +34,7 @@ public class StudentService {
 	private final StudentRepository studentRepository;
 	private final ClassEntityRepository classEntityRepository;
 	private final ProfileRepository profileRepository;
+	private final CourseRepository courseRepository;
 	
 	
 	
@@ -50,10 +55,15 @@ public class StudentService {
 		
 		//khoi tao pròile
 		Profile profile = new Profile();
-		profile.setEmail(studentRequest.getProfileRequest().getEmail());
-		profile.setPhone(studentRequest.getProfileRequest().getPhone());
-		profile.setAddress(studentRequest.getProfileRequest().getAddress());
-
+		
+		Optional.ofNullable(studentRequest.getProfileRequest())
+		.ifPresent(profileRequest -> {
+			profile.setEmail(profileRequest.getEmail());
+			profile.setPhone(profileRequest.getPhone());
+			profile.setAddress(profileRequest.getAddress());	
+		});
+		
+		
 		//luu xuong db
 		Profile savedProfile = profileRepository.save(profile);
 		
@@ -64,6 +74,14 @@ public class StudentService {
 		student.setName(studentRequest.getName());
 		student.setClassEntity(existClassEntity);
 		student.setProfile(savedProfile);
+		
+		if(studentRequest.getIdCourses()!= null && !studentRequest.getIdCourses().isEmpty()) {
+			for(Long idcourse : studentRequest.getIdCourses()) {
+				Course course = courseRepository.findById(idcourse).orElseThrow(
+						() -> new CourseNotFoundException("[!] Khong tim thay Course"));
+				student.getCourses().add(course);
+			}
+		}
 		
 		//luu thong tin student xuong db và tra ve student có id
 		Student savedStudent = studentRepository.save(student);
@@ -86,6 +104,14 @@ public class StudentService {
 				savedStudent.getProfile().getPhone(),
 				savedStudent.getProfile().getAddress()
 				));
+		
+		if(!savedStudent.getCourses().isEmpty()) {
+			response.setCourses(
+					savedStudent.getCourses().stream()
+												.map(course -> new CourseBasicResponse(course.getId(), course.getName(), course.getDescription()))
+												.toList()
+			); 
+		}
 		return response;
 	}
 	
@@ -111,14 +137,6 @@ public class StudentService {
 					response.setName(student.getName());
 					response.setId(student.getId());
 					response.setAge(student.getAge());
-//					if(student.getProfile() != null) {
-//						response.setProfile(new ProfileBasicResponse(
-//								student.getProfile().getId(),
-//								student.getProfile().getEmail(),
-//								student.getProfile().getPhone(),
-//								student.getProfile().getAddress()
-//								));	
-//					}
 					Optional.ofNullable(student.getProfile())
 							.map(profile -> new ProfileBasicResponse(profile.getId(), profile.getEmail(), profile.getPhone(), profile.getAddress()))
 							.ifPresent(profileBasic -> response.setProfile(profileBasic));
@@ -126,6 +144,12 @@ public class StudentService {
 					Optional.ofNullable(student.getClassEntity())
 							.map(classEntity -> new ClassEntityBasicResponse(classEntity.getId(), classEntity.getName()))
 							.ifPresent(classEntityResponse -> response.setClassEntity(classEntityResponse));
+					
+					
+					response.setCourses(student.getCourses().stream()
+												.map(course -> new CourseBasicResponse(course.getId(), course.getName(), course.getDescription()))
+												.toList()
+					) ;
 					return response;
 				});
 	}
@@ -199,6 +223,18 @@ public class StudentService {
 			profile.setAddress(student.getProfileRequest().getAddress());
 			
 		}
+		
+		//setup course
+		existing.getCourses().clear();
+		if(student.getIdCourses() != null && !student.getIdCourses().isEmpty()) {
+			for(Long idCourse : student.getIdCourses()) {
+				Course course = courseRepository.findById(idCourse).orElseThrow(
+						() -> new CourseNotFoundException("[!] Khong tim thay Course."));
+				existing.getCourses().add(course);
+			}
+		}
+		
+		
 
 		Student savedStudent = studentRepository.save(existing);
 		
@@ -217,10 +253,20 @@ public class StudentService {
 					savedStudent.getProfile().getAddress()
 					));
 		}
+		if(!savedStudent.getCourses().isEmpty()) {
+			studentResponse.setCourses(savedStudent.getCourses().stream()
+																.map(course -> new CourseBasicResponse(course.getId(), course.getName(), course.getDescription()))
+																.toList()
+			);
+		}
+		
 		
 		
 		return studentResponse;
 	}
+	
+	
+	//DELETE
 	
 	public void deleteStudent(Long idToDel) {
 		
@@ -231,8 +277,16 @@ public class StudentService {
 		Profile profile = student.getProfile();
 		if(profile != null) {
 			profile.setStudent(null);
-			student.setProfile(null);
+
+//			student.setProfile(null);
 		}
+		if(!student.getCourses().isEmpty()) {
+			for(Course course : student.getCourses()) {
+				course.getStudents().remove(student);
+			}
+			student.getCourses().clear();
+		}
+		
 		studentRepository.deleteById(idToDel);
 	}
 	
