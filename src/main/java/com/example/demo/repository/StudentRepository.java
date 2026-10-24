@@ -29,14 +29,20 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 	List<Student> baiThucHanh(@Param("name") String name, @Param("age") Integer age);
 	
 	//New Version for get all (partern).
-	@Query("SELECT s FROM Student s WHERE (:name IS NULL OR s.name LIKE %:name%) AND (:minAge IS NULL OR s.age >= :minAge) AND (:maxAge IS NULL OR s.age <= :maxAge) AND (:idClass IS NULL OR s.classEntity.id = :idClass) AND (:nameClass IS NULL OR s.classEntity.name LIKE %:nameClass%)")
-	Page<Student> filterStudents(
+		//query1: tao page student 
+	@Query(value = "SELECT s.id FROM Student s WHERE (:name IS NULL OR s.name LIKE %:name%) AND (:minAge IS NULL OR s.age >= :minAge) AND (:maxAge IS NULL OR s.age <= :maxAge) AND (:idClass IS NULL OR s.classEntity.id = :idClass) AND (:nameClass IS NULL OR s.classEntity.name LIKE %:nameClass%)",
+			countQuery = "SELECT count(s.id) FROM Student s WHERE (:name IS NULL OR s.name LIKE %:name%) AND (:minAge IS NULL OR s.age >= :minAge) AND (:maxAge IS NULL OR s.age <= :maxAge) AND (:idClass IS NULL OR s.classEntity.id = :idClass) AND (:nameClass IS NULL OR s.classEntity.name LIKE %:nameClass%)")
+	Page<Long> filterStudents(
 			@Param("name") String name,
 			@Param("minAge") Integer minAge,
 			@Param("maxAge") Integer maxAge,
 			@Param("idClass") Long idClass,
 			@Param("nameClass") String nameClass,
 			Pageable pagination);
+		//query2: join fetch courses
+	@Query("SELECT DISTINCT s FROM Student s LEFT JOIN FETCH s.classEntity LEFT JOIN FETCH s.profile LEFT JOIN FETCH s.courses WHERE s.id IN :ids")
+	List<Student> FindAllStudentByIds(@Param("ids") List<Long> ids);
+	
 	
 	
 	
