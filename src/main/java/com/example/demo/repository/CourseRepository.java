@@ -17,7 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>  {
 					+ "(:nameStudent IS NULL OR s.name LIKE CONCAT('%', :nameStudent, '%')) AND"
 					+ "(:addressProfile IS NULL OR p.address LIKE CONCAT('%', :addressProfile, '%')) AND"
 					+ "(:nameClassEntity IS NULL OR cl.name LIKE CONCAT('%', :nameClassEntity, '%'))",
-			countQuery = "SELECT c FROM Course c LEFT JOIN c.students s LEFT JOIN s.profile p LEFT JOIN s.classEntity cl WHERE"
+			countQuery = "SELECT COUNT(DISTINCT(c.id)) FROM Course c LEFT JOIN c.students s LEFT JOIN s.profile p LEFT JOIN s.classEntity cl WHERE"
 					+ "(:name IS NULL OR c.name LIKE CONCAT('%', :name, '%')) AND"
 					+ "(:description IS NULL OR c.description LIKE CONCAT('%', :description, '%')) AND"
 					+ "(:nameStudent IS NULL OR s.name LIKE CONCAT('%', :nameStudent, '%')) AND"

@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -129,9 +132,26 @@ public class StudentService {
 		
 		Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 		
-		Page<Student> students =  studentRepository.filterStudents(name, minAge, maxAge, idClass, nameClass, pageable);
 
-		return students	.map(student -> {
+		//Query1
+		Page<Long> pageIds = studentRepository.filterStudents(name, minAge, maxAge, idClass, nameClass, pageable);
+		
+		if(pageIds.isEmpty())	return Page.empty(pageable);
+		
+		List<Long> listIds = pageIds.getContent();
+		
+		List<Student> listStudents = studentRepository.FindAllStudentByIds(listIds);
+		
+		Map<Long, Student> hashmapStudents = new HashMap<>();
+		for(Student s : listStudents) {
+			hashmapStudents.put(s.getId(), s);
+		}
+		
+		
+		return pageIds.map(id -> {
+					Student student = hashmapStudents.get(id);
+					if(student == null)		return null;
+					
 					StudentResponse response = new StudentResponse();
 					
 					response.setName(student.getName());
@@ -144,12 +164,14 @@ public class StudentService {
 					Optional.ofNullable(student.getClassEntity())
 							.map(classEntity -> new ClassEntityBasicResponse(classEntity.getId(), classEntity.getName()))
 							.ifPresent(classEntityResponse -> response.setClassEntity(classEntityResponse));
-					
-					
-					response.setCourses(student.getCourses().stream()
-												.map(course -> new CourseBasicResponse(course.getId(), course.getName(), course.getDescription()))
-												.toList()
-					) ;
+							
+					if(student.getCourses() != null && !student.getCourses().isEmpty()) {
+						response.setCourses(
+								student.getCourses().stream()
+													.map(course -> new CourseBasicResponse(course.getId(), course.getName(), course.getDescription()))
+													.toList()
+						);
+					}
 					return response;
 				});
 	}
