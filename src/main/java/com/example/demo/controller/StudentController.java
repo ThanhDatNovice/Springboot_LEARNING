@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
+import java.util.List;
+
 //import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,5 +86,10 @@ public class StudentController {
 	}
 	
 	
+	
+	@GetMapping("/to-one")
+	public ResponseEntity<List<StudentResponse>> getStudentsWithToOne() {
+	    return ResponseEntity.ok(studentService.getStudentsWithToOne());
+	}
 	
 }

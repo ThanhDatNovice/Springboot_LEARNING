@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,6 +43,17 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 		//query2: join fetch courses
 	@Query("SELECT DISTINCT s FROM Student s LEFT JOIN FETCH s.classEntity LEFT JOIN FETCH s.profile LEFT JOIN FETCH s.courses WHERE s.id IN :ids")
 	List<Student> FindAllStudentByIds(@Param("ids") List<Long> ids);
+	
+	
+	//Entity Graph and To One after check log
+	// com/example/demo/repository/StudentRepository.java
+
+	@EntityGraph(
+	    attributePaths = {"classEntity", "profile"},
+	    type = EntityGraph.EntityGraphType.FETCH
+	)
+	@Query("SELECT s FROM Student s")
+	List<Student> findAllWithToOneRelations();
 	
 	
 	
