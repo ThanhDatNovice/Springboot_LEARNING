@@ -87,7 +87,7 @@ public class CourseService {
 															profile.getAddress()
 													))
 													.orElse(null),
-													Optional.ofNullable(student.getClassEntity())
+											Optional.ofNullable(student.getClassEntity())
 													.map(classEntity -> new ClassEntityBasicResponse(
 															classEntity.getId(),
 															classEntity.getName()

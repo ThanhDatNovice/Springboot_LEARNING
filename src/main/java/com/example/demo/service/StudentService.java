@@ -298,7 +298,7 @@ public class StudentService {
 				);
 		Profile profile = student.getProfile();
 		if(profile != null) {
-			profile.setStudent(null);
+//			profile.setStudent(null);
 
 //			student.setProfile(null);
 		}
@@ -310,6 +310,37 @@ public class StudentService {
 		}
 		
 		studentRepository.deleteById(idToDel);
+	}
+	
+	
+	
+	//test entitygraph and to log
+	public List<StudentResponse> getStudentsWithToOne() {
+	    List<Student> students = studentRepository.findAllWithToOneRelations();
+	    
+	    return students.stream().map(student -> {
+	        StudentResponse response = new StudentResponse();
+	        response.setId(student.getId());
+	        response.setName(student.getName());
+	        response.setAge(student.getAge());
+
+	        // Đã được nạp sẵn trong RAM qua @EntityGraph -> Không tốn SQL
+	        Optional.ofNullable(student.getProfile())
+	                .ifPresent(p -> response.setProfile(
+	                        new ProfileBasicResponse(p.getId(), p.getEmail(), p.getPhone(), p.getAddress())
+	                ));
+
+	        // Đã được nạp sẵn trong RAM qua @EntityGraph -> Không tốn SQL
+	        Optional.ofNullable(student.getClassEntity())
+	                .ifPresent(c -> response.setClassEntity(
+	                        new ClassEntityBasicResponse(c.getId(), c.getName())
+	                ));
+
+	        // CHÚ Ý NGHIỆM THU: Tạm thời KHÔNG gọi student.getCourses() ở bước này
+	        // để kiểm chứng thuần túy hành vi của @EntityGraph với To-One.
+
+	        return response;
+	    }).toList();
 	}
 	
 	

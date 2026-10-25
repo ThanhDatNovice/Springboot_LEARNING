@@ -1,7 +1,5 @@
 package com.example.demo.dto.profile;
 
-import com.example.demo.dto.student.StudentInProfileResponse;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +19,5 @@ public class ProfileResponse {
 	private String phone;
 	
 	private String address;
-	
-	private StudentInProfileResponse studentInProfileResponse;
 	
 }

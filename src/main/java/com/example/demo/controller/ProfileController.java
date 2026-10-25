@@ -26,15 +26,12 @@ public class ProfileController {
 			@RequestParam(required = false) String email,
 			@RequestParam(required = false) String phone,
 			@RequestParam(required = false) String address,
-			@RequestParam(required = false) Integer minAgeStudent,
-			@RequestParam(required = false) Integer maxAgeStudent,
-			@RequestParam(required = false) String nameClass,
 			@RequestParam(defaultValue = "0") Integer page,
 			@RequestParam(defaultValue = "5") Integer size,
 			@RequestParam(defaultValue = "id") String sort,
 			@RequestParam(defaultValue = "asc") String direction
 			){
-		return profileService.filterProfiles(email, phone, address, minAgeStudent, maxAgeStudent, nameClass, page, size, sort, direction);
+		return profileService.filterProfiles(email, phone, address, page, size, sort, direction);
 	}
 
 	@DeleteMapping("/{id}")
