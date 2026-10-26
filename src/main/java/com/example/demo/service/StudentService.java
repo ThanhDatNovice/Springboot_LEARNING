@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.dto.classEntity.ClassEntityBasicResponse;
 import com.example.demo.dto.course.CourseBasicResponse;
 import com.example.demo.dto.profile.ProfileBasicResponse;
+import com.example.demo.dto.student.CourseStudentDto;
 import com.example.demo.dto.student.StudentRequest;
 import com.example.demo.dto.student.StudentResponse;
 import com.example.demo.entity.ClassEntity;
@@ -370,6 +373,60 @@ public class StudentService {
 	        }
 	        return res;
 	    }).toList();
+	}
+	
+	//day 03: two query 
+	public Page<StudentResponse> getStudentsTwoPhase(Pageable pageable) {
+	    // 1. PHASE 1: Query cha + To-One (Query 1 + Count Query)
+	    Page<Student> studentPage = studentRepository.findAllWithToOne(pageable);
+	    List<Student> students = studentPage.getContent();
+
+	    if (students.isEmpty()) {
+	        return Page.empty(pageable);
+	    }
+
+	    // 2. Trích xuất danh sách ID cha
+	    List<Long> studentIds = students.stream()
+	            .map(Student::getId)
+	            .toList();
+
+	    // 3. PHASE 2: Query con qua mệnh đề WHERE IN (Query 2)
+	    List<CourseStudentDto> courseDtos = studentRepository.findCoursesByStudentIds(studentIds);
+
+	    // Gom nhóm môn học theo student_id vào Map (Độ phức tạp O(M))
+	    Map<Long, List<CourseBasicResponse>> coursesByStudentIdMap = courseDtos.stream()
+	            .collect(Collectors.groupingBy(
+	                    CourseStudentDto::getStudentId,
+	                    Collectors.mapping(
+	                            c -> new CourseBasicResponse(c.getCourseId(), c.getCourseName(), c.getCourseDescription()),
+	                            Collectors.toList()
+	                    )
+	            ));
+
+	    // 4. PHASE 3: Ghép dữ liệu DTO trên RAM (Độ phức tạp O(N))
+	    return studentPage.map(student -> {
+	        StudentResponse res = new StudentResponse();
+	        res.setId(student.getId());
+	        res.setName(student.getName());
+	        res.setAge(student.getAge());
+
+	        // Ánh xạ To-One: ClassEntity (Dữ liệu đã có sẵn từ Phase 1, 0 câu SQL)
+	        if (student.getClassEntity() != null) {
+	            ClassEntity ce = student.getClassEntity();
+	            res.setClassEntity(new ClassEntityBasicResponse(ce.getId(), ce.getName()));
+	        }
+
+	        // Ánh xạ To-One: Profile (Dữ liệu đã có sẵn từ Phase 1, 0 câu SQL)
+	        if (student.getProfile() != null) {
+	            Profile p = student.getProfile();
+	            res.setProfile(new ProfileBasicResponse(p.getId(), p.getAddress(), p.getPhone(), p.getEmail()));
+	        }
+
+	        // Ánh xạ To-Many: Lấy từ Map với độ phức tạp O(1) (Không chạm vào Proxy Lazy)
+	        res.setCourses(coursesByStudentIdMap.getOrDefault(student.getId(), Collections.emptyList()));
+
+	        return res;
+	    });
 	}
 	
 }
