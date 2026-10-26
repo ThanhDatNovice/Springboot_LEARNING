@@ -344,4 +344,32 @@ public class StudentService {
 	}
 	
 	
+	//test batching
+	// Thêm vào com/example/demo/service/StudentService.java
+
+//	@Transactional(readOnly = true)
+	public List<StudentResponse> verifyBatchSize40() {
+	    // 1. Nạp 40 sinh viên lên RAM (Query 1)
+	    Pageable pageable = PageRequest.of(0, 40, Sort.by("id").ascending());
+	    Page<Student> studentPage = studentRepository.findAll(pageable);
+
+	    // 2. Map sang DTO và kích hoạt nạp môn học con
+	    return studentPage.getContent().stream().map(student -> {
+	        StudentResponse res = new StudentResponse();
+	        res.setId(student.getId());
+	        res.setName(student.getName());
+	        res.setAge(student.getAge());
+
+	        // Kích hoạt collection courses
+	        if (student.getCourses() != null) {
+	            res.setCourses(
+	                student.getCourses().stream()
+	                    .map(c -> new CourseBasicResponse(c.getId(), c.getName(), c.getDescription()))
+	                    .toList()
+	            );
+	        }
+	        return res;
+	    }).toList();
+	}
+	
 }

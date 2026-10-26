@@ -3,6 +3,8 @@ package com.example.demo.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -39,6 +41,7 @@ public class Student {
 	@JoinColumn(name = "profile_id")
 	private Profile profile;
 	
+	@BatchSize (size = 20)
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(
 			name = "student_course",
