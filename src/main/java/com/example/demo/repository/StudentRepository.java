@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.demo.dto.student.CourseStudentDto;
 import com.example.demo.entity.Student;
 
 public interface StudentRepository extends JpaRepository<Student, Long> {
@@ -55,6 +56,26 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 	@Query("SELECT s FROM Student s")
 	List<Student> findAllWithToOneRelations();
 	
+	
+	//day3: two query best pratice
+	// Phase 1: Lấy Student kèm To-One (An toàn tuyệt đối với LIMIT/OFFSET)
+    @EntityGraph(attributePaths = {"classEntity", "profile"})
+    @Query("SELECT s FROM Student s")
+    Page<Student> findAllWithToOne(Pageable pageable);
+
+    // Phase 2: Lấy toàn bộ môn học của danh sách studentId
+    @Query("""
+        SELECT new com.example.demo.dto.CourseStudentDto(
+            s.id, 
+            c.id, 
+            c.name, 
+            c.description
+        )
+        FROM Student s
+        JOIN s.courses c
+        WHERE s.id IN :studentIds
+    """)
+    List<CourseStudentDto> findCoursesByStudentIds(@Param("studentIds") List<Long> studentIds);
 	
 	
 	
