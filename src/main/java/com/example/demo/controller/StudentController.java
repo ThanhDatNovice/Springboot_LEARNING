@@ -92,4 +92,10 @@ public class StudentController {
 	    return ResponseEntity.ok(studentService.getStudentsWithToOne());
 	}
 	
+	// Thêm vào com/example/demo/controller/StudentController.java
+
+	@GetMapping("/verify-batch-size")
+	public ResponseEntity<List<StudentResponse>> verifyBatchSize() {
+	    return ResponseEntity.ok(studentService.verifyBatchSize40());
+	}
 }
